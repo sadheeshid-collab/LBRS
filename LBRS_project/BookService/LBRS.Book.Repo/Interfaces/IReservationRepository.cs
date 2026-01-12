@@ -12,7 +12,7 @@ namespace LBRS.Book.Repo.Interfaces
 
         Task<Reservation?> GetReservationById(Guid reservationId);
 
-        Task<IEnumerable<Reservation?>> GetAllReservations();
+        Task<IEnumerable<Reservation?>> GetReservedBooks(Guid UserID);
 
     }
 }

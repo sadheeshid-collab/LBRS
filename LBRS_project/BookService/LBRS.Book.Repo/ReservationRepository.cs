@@ -96,13 +96,16 @@ namespace LBRS.Book.Repo
             }
         }
 
-        public async Task<IEnumerable<Reservation?>> GetAllReservations()
+        public async Task<IEnumerable<Reservation?>> GetReservedBooks(Guid UserID)
         {
             try
             {
                 return await _context.Reservations
                             .AsNoTracking()
-                            .Include(r => r.ReservationStatuses)
+                            .Include(r => r.BookDetail)
+                            .Include(r => r.ReservationStatuses
+                                            .Where(rs => rs.ReservationStatusType == ReservationStatusTypes.Reserved))
+                            .Where(r => r.UserId == UserID)
                             .ToListAsync();
             }
             catch (Exception ex)

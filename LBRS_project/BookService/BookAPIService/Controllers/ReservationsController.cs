@@ -28,7 +28,7 @@ namespace BookAPIService.Controllers
                 var checkReservationCreated = await _reservationService.Add(reservationDto);
 
                 switch (checkReservationCreated.Item1)
-                {   
+                {
                     case OperationStatusTypes.Failure:
                         return BadRequest(new
                         {
@@ -58,11 +58,11 @@ namespace BookAPIService.Controllers
                             Message = "Reservation created successfully.",
                             ReservationID = checkReservationCreated.Item2
 
-                        });                            
+                        });
                     default:
                         return StatusCode(StatusCodes.Status500InternalServerError, "Exception: AddReservation");
                 }
-                 
+
             }
             catch (Exception ex)
             {
@@ -70,5 +70,28 @@ namespace BookAPIService.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the reservation.");
             }
         }
+
+        [Authorize(Roles = "Member")]
+        [HttpGet("getreservedbooks")]
+        public async Task<IActionResult> GetReservedBooks()
+        {
+            try
+            {
+                var reservationList = await _reservationService.GetReservedBooks();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Reserved books retrieved successfully.",
+                    Data = reservationList
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception: GetReservedBooks");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Exception: GetReservedBooks");
+            }
+        }
     }
+
 }

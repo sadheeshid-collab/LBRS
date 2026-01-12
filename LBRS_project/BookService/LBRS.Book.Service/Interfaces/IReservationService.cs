@@ -10,6 +10,6 @@ namespace LBRS.Book.Service.Interfaces
 
         Task<ReservationViewDTO?> GetReservationById(Guid reservationId);
 
-        Task<IEnumerable<ReservationViewDTO?>> GetAllReservations();
+        Task<IEnumerable<ReservationViewDTO?>> GetReservedBooks();
     }
 }

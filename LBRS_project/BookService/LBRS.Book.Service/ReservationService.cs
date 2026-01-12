@@ -42,7 +42,7 @@ namespace LBRS.Book.Service
 
                 if (checkBookAlreadyReservedByUser)
                 {
-                    return (OperationStatusTypes.DuplicateEntry,  Guid.Empty);
+                    return (OperationStatusTypes.DuplicateEntry, Guid.Empty);
                 }
 
                 var reservation = new Reservation
@@ -72,12 +72,57 @@ namespace LBRS.Book.Service
             }
         }
 
-        public Task<IEnumerable<ReservationViewDTO?>> GetAllReservations()
+        public async Task<IEnumerable<ReservationViewDTO?>> GetReservedBooks()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var reservationList = await _reservationRepository.GetReservedBooks(_httpClaimContext.UserId);
+
+                if (reservationList == null || !reservationList.Any())
+                {
+                    return Enumerable.Empty<ReservationViewDTO?>();
+                }
+
+                var reservationViewDTOList = reservationList.Select(
+                    r => new ReservationViewDTO
+                    {
+                        ReservationId = r.ReservationId,
+                        UserId = r.UserId,
+                        Remarks = r.Remarks,
+
+                        BookDetailResViewDTO = new BookDetailResViewDTO
+                        {
+                            BookId  = r.BookDetail.BookDetailId,
+                            Title = r.BookDetail.Title,
+                            ISBN = r.BookDetail.ISBN,
+                            Author = r.BookDetail.Author,
+                            Genre = r.BookDetail.Genre,
+                            PublishedYear = r.BookDetail.PublishedYear,
+                            Publisher = r.BookDetail.Publisher,
+                            Description = r.BookDetail.Description
+                        },
+
+                        ReservationStatusListDTO = r.ReservationStatuses.Select(rs => new ReservationStatusViewDTO
+                        {
+                            ReservationStatusId = rs.ReservationStatusId,
+                            ReservationStatusType = rs.ReservationStatusType.ToString(),
+                            CreatedDate = rs.CreatedDate,
+                            CreatedByUserID = rs.CreatedByUserID
+                        }).ToList()
+
+                    });
+
+                return reservationViewDTOList;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception: GetAllReservations");
+                throw ex;
+            }
         }
 
-        public Task<ReservationViewDTO?> GetReservationById(Guid reservationId)
+        public async Task<ReservationViewDTO?> GetReservationById(Guid reservationId)
         {
             throw new NotImplementedException();
         }

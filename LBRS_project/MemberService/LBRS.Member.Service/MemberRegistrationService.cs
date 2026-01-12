@@ -18,7 +18,7 @@ namespace LBRS.Member.Service
 
 
         public MemberRegistrationService(IMemberRegistrationRepository memberRegistrationRepository,
-                                            IPasswordHasher passwordHasher, 
+                                            IPasswordHasher passwordHasher,
                                             IJwtAuthTokenService jwtAuthTokenService,
                                             IHttpClaimContext httpClaimContext,
                                             ILogger<MemberRegistrationService> logger)
@@ -179,7 +179,7 @@ namespace LBRS.Member.Service
                 var existingUser = await _memberRegistrationRepository.GetByUserId(UserID);
 
 
-                if (existingUser == null)
+                if (existingUser == null || !existingUser.IsActive)
                 {
                     return OperationStatusTypes.NotFound;
                 }
@@ -266,7 +266,7 @@ namespace LBRS.Member.Service
                 var isPasswordValid = _passwordHasher.VerifyPassword(password, checkUserExists.PasswordHash, checkUserExists.PasswordSalt);
 
                 if (isPasswordValid)
-                { 
+                {
                     var token = await _jwtAuthTokenService.GenerateAccessToken(checkUserExists.UserRoleType.ToString(), checkUserExists.UserId);
 
                     return (OperationStatusTypes.Authorized, token);
@@ -274,7 +274,7 @@ namespace LBRS.Member.Service
                 }
 
                 return (OperationStatusTypes.Unauthorized, string.Empty);
-                
+
             }
             catch (Exception ex)
             {
